@@ -382,6 +382,45 @@ public class Activities extends JFrame {
                         selectedPlace
                                 .split(" - ")[0]
                 );
+        String checkSql =
+                "SELECT * FROM activities " +
+                        "WHERE place_id = ? " +
+                        "AND activity_name = ?";
+
+        try {
+
+            java.sql.Connection connection =
+                    DatabaseConnection.getConnection();
+
+            java.sql.PreparedStatement checkStatement =
+                    connection.prepareStatement(checkSql);
+
+            checkStatement.setInt(1, placeId);
+            checkStatement.setString(2, activityName);
+
+            java.sql.ResultSet result =
+                    checkStatement.executeQuery();
+
+            if (result.next()) {
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        "This activity already exists for this place."
+                );
+
+                return;
+            }
+
+        } catch (Exception e) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Error checking activity: "
+                            + e.getMessage()
+            );
+
+            return;
+        }
 
         String sql =
                 "INSERT INTO activities " +
