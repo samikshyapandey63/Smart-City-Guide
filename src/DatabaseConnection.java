@@ -1,5 +1,6 @@
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.SQLException;
 
 public class DatabaseConnection {
 
@@ -7,30 +8,24 @@ public class DatabaseConnection {
             "jdbc:mysql://localhost:3306/SmartCity";
 
     private static final String USER = "root";
-
     private static final String PASSWORD = "WJ28@krhps";
 
-    public static Connection getConnection() {
-        try {
-            Connection connection = DriverManager.getConnection(
-                    URL,
-                    USER,
-                    PASSWORD
-            );
-
-            System.out.println("Database connected successfully!");
-
-            return connection;
-
-        } catch (Exception e) {
-            System.out.println("Database connection failed!");
-            e.printStackTrace();
-
-            return null;
-        }
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(
+                URL,
+                USER,
+                PASSWORD
+        );
     }
 
     public static void main(String[] args) {
-        getConnection();
+        try {
+            Connection connection = getConnection();
+            System.out.println("Database connected successfully!");
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println("Database connection failed!");
+            e.printStackTrace();
+        }
     }
 }

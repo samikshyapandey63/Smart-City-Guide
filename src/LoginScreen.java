@@ -11,8 +11,6 @@ public class LoginScreen extends JFrame {
         setLocationRelativeTo(null);
 
         // Login
-        JTextArea loginArea = new JTextArea();
-        loginArea.setBounds(150, 80, 200, 40);
 
         JPasswordField passwordField = new JPasswordField();
         passwordField.setBounds(150, 150, 200, 40);
@@ -25,7 +23,7 @@ public class LoginScreen extends JFrame {
 
         // Add components
         add(loginLabel);
-        add(loginArea);
+
         add(passwordLabel);
         add(passwordField);
 
