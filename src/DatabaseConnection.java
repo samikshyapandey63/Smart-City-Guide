@@ -8,7 +8,7 @@ public class DatabaseConnection {
             "jdbc:mysql://localhost:3306/SmartCity";
 
     private static final String USER = "root";
-    private static final String PASSWORD = "WJ28@krhps";
+    private static final String PASSWORD = "YOUR_PASSWORD";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(
