@@ -1,16 +1,17 @@
 public class Place {
     private int id;
-    private String name, category, area, address, phone;
+    private String name, category, city, area, address, phone;
     private String openTime, closeTime, description;
     private double avgRating;
     private int reviewCount;
 
-    public Place(int id, String name, String category, String area, String address,
+    public Place(int id, String name, String category, String city, String area, String address,
                  String phone, String openTime, String closeTime, String description,
                  double avgRating, int reviewCount) {
         this.id = id;
         this.name = name;
         this.category = category;
+        this.city = city;
         this.area = area;
         this.address = address;
         this.phone = phone;
@@ -24,6 +25,7 @@ public class Place {
     public int getId() { return id; }
     public String getName() { return name; }
     public String getCategory() { return category; }
+    public String getCity() { return city; }
     public String getArea() { return area; }
     public String getAddress() { return address; }
     public String getPhone() { return phone; }

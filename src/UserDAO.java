@@ -125,6 +125,7 @@ public class UserDAO {
                 rs.getString("password"),
                 rs.getString("role")
         );
+//        user.setCity(rs.getString("city"));
 
         con.close();
 
@@ -153,23 +154,33 @@ public class UserDAO {
         return found;
     }
 
+    public boolean emailExists(String email) throws SQLException {
+        Connection con = DatabaseConnection.getConnection();
+        PreparedStatement ps = con.prepareStatement("SELECT id FROM users WHERE email = ?");
+        ps.setString(1, email);
+        ResultSet rs = ps.executeQuery();
+        boolean found = rs.next();
+        con.close();
+        return found;
+    }
 
     public void registerTourist(
             String name,
             String username,
+            String email,
             String password
     ) throws SQLException {
 
         Connection con = DatabaseConnection.getConnection();
 
         PreparedStatement ps = con.prepareStatement(
-                "INSERT INTO users (name, username, password, role) " +
-                        "VALUES (?, ?, ?, 'TOURIST')"
+                "INSERT INTO users (name, username, email, password, role) VALUES (?, ?, ?, ?, 'TOURIST')"
         );
 
         ps.setString(1, name);
         ps.setString(2, username);
-        ps.setString(3, password);
+        ps.setString(3, email);
+        ps.setString(4, password);
 
         ps.executeUpdate();
 
