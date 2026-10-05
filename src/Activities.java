@@ -7,6 +7,12 @@ public class Activities extends JFrame {
     private JComboBox<String> placeBox;
     private JTextField activityField;
     private JTextField oldActivityField;
+    private JTextField newActivityField;
+
+    private JLabel activityLabel;
+    private JLabel oldActivityLabel;
+    private JLabel newActivityLabel;
+
 
 
     private JTable activitiesTable;
@@ -89,17 +95,46 @@ public class Activities extends JFrame {
         );
 
 
-        // Activity
+        // Activity fields
+
+        activityLabel =
+                new JLabel("Activity:");
+
+        activityField =
+                new JTextField(25);
+
+
+// Normal Activity field
         gbc.gridx = 0;
         gbc.gridy = 1;
 
         formPanel.add(
-                new JLabel("Old Activity:"),
+                activityLabel,
                 gbc
         );
 
+        gbc.gridx = 1;
+
+        formPanel.add(
+                activityField,
+                gbc
+        );
+
+
+// Old Activity
+        oldActivityLabel =
+                new JLabel("Old Activity:");
+
         oldActivityField =
                 new JTextField(25);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+
+        formPanel.add(
+                oldActivityLabel,
+                gbc
+        );
 
         gbc.gridx = 1;
 
@@ -108,23 +143,34 @@ public class Activities extends JFrame {
                 gbc
         );
 
+
+// New Activity
+        newActivityLabel =
+                new JLabel("New Activity:");
+
+        newActivityField =
+                new JTextField(25);
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
 
         formPanel.add(
-                new JLabel("New Activity:"),
+                newActivityLabel,
                 gbc
         );
-
-        activityField =
-                new JTextField(25);
 
         gbc.gridx = 1;
 
         formPanel.add(
-                activityField,
+                newActivityField,
                 gbc
         );
+
+
+// Hide update fields initially
+        oldActivityLabel.setVisible(false);
+        oldActivityField.setVisible(false);
+        newActivityLabel.setVisible(false);
+        newActivityField.setVisible(false);
 
 
         // Description
@@ -137,6 +183,9 @@ public class Activities extends JFrame {
         JButton updateButton =
                 new JButton("UPDATE");
 
+        JButton saveUpdateButton =
+                new JButton("SAVE UPDATE");
+
         JButton deleteButton =
                 new JButton("DELETE");
 
@@ -145,14 +194,89 @@ public class Activities extends JFrame {
 
 
 
-        addButton.addActionListener(e -> addActivity());
-        clearButton.addActionListener(e -> {
-            activityField.setText("");
-            placeBox.setSelectedIndex(0);
-        });
-        deleteButton.addActionListener(e -> deleteActivity());
-        updateButton.addActionListener(e -> updateActivity());
+        addButton.addActionListener(e -> {
 
+            activityLabel.setVisible(true);
+            activityField.setVisible(true);
+
+            oldActivityLabel.setVisible(false);
+            oldActivityField.setVisible(false);
+
+            newActivityLabel.setVisible(false);
+            newActivityField.setVisible(false);
+
+            addActivity();
+
+            formPanel.revalidate();
+            formPanel.repaint();
+        });
+        clearButton.addActionListener(e -> {
+
+            activityField.setText("");
+            oldActivityField.setText("");
+            newActivityField.setText("");
+
+            placeBox.setSelectedIndex(0);
+
+            // Show normal mode
+            activityLabel.setVisible(true);
+            activityField.setVisible(true);
+
+            // Hide update mode
+            oldActivityLabel.setVisible(false);
+            oldActivityField.setVisible(false);
+
+            newActivityLabel.setVisible(false);
+            newActivityField.setVisible(false);
+
+            saveUpdateButton.setVisible(false);
+
+            addButton.setVisible(true);
+            updateButton.setVisible(true);
+            deleteButton.setVisible(true);
+
+            formPanel.revalidate();
+            formPanel.repaint();
+        });
+        deleteButton.addActionListener(e -> {
+
+            activityLabel.setVisible(true);
+            activityField.setVisible(true);
+
+            oldActivityLabel.setVisible(false);
+            oldActivityField.setVisible(false);
+
+            newActivityLabel.setVisible(false);
+            newActivityField.setVisible(false);
+
+            deleteActivity();
+
+            formPanel.revalidate();
+            formPanel.repaint();
+        });
+        updateButton.addActionListener(e -> {
+
+            activityLabel.setVisible(false);
+            activityField.setVisible(false);
+
+            oldActivityLabel.setVisible(true);
+            oldActivityField.setVisible(true);
+
+            newActivityLabel.setVisible(true);
+            newActivityField.setVisible(true);
+
+            saveUpdateButton.setVisible(true);
+
+            addButton.setVisible(false);
+            updateButton.setVisible(false);
+            deleteButton.setVisible(false);
+
+            formPanel.revalidate();
+            formPanel.repaint();
+        });
+        saveUpdateButton.addActionListener(e -> {
+            updateActivity();
+        });
 
         JPanel buttonPanel =
                 new JPanel();
@@ -161,12 +285,14 @@ public class Activities extends JFrame {
 
         buttonPanel.add(addButton);
         buttonPanel.add(updateButton);
+        buttonPanel.add(saveUpdateButton);
         buttonPanel.add(deleteButton);
         buttonPanel.add(clearButton);
+        saveUpdateButton.setVisible(false);
 
 
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
 
         gbc.anchor =
                 GridBagConstraints.CENTER;
@@ -189,58 +315,20 @@ public class Activities extends JFrame {
                 new DefaultTableModel(
                         columns,
                         0
-                );
+                ) {
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column) {
+
+                        return false;
+                    }
+                };
 
 
         activitiesTable =
                 new JTable(tableModel);
-        activitiesTable.getColumnModel()
-                .getColumn(2)
-                .setPreferredWidth(300);
 
-        activitiesTable.setRowHeight(50);
-        activitiesTable.getColumnModel()
-                .getColumn(2)
-                .setCellRenderer(
-                        new javax.swing.table.DefaultTableCellRenderer() {
-
-                            @Override
-                            public java.awt.Component getTableCellRendererComponent(
-                                    javax.swing.JTable table,
-                                    Object value,
-                                    boolean isSelected,
-                                    boolean hasFocus,
-                                    int row,
-                                    int column) {
-
-                                javax.swing.JLabel label =
-                                        (javax.swing.JLabel) super
-                                                .getTableCellRendererComponent(
-                                                        table,
-                                                        value,
-                                                        isSelected,
-                                                        hasFocus,
-                                                        row,
-                                                        column
-                                                );
-
-                                if (value != null) {
-
-                                    label.setText(
-                                            "<html>"
-                                                    + value.toString()
-                                                    .replace(
-                                                            "\n",
-                                                            "<br>"
-                                                    )
-                                                    + "</html>"
-                                    );
-                                }
-
-                                return label;
-                            }
-                        }
-                );
         activitiesTable.getColumnModel()
                 .getColumn(0)
                 .setMinWidth(0);
@@ -304,12 +392,22 @@ public class Activities extends JFrame {
 
                         if (row != -1) {
 
-                            String activity =
+                            String place =
+                                    activitiesTable
+                                            .getValueAt(row, 1)
+                                            .toString();
+
+                            String activities =
                                     activitiesTable
                                             .getValueAt(row, 2)
                                             .toString();
 
-                            activityField.setText(activity);
+                            JOptionPane.showMessageDialog(
+                                    Activities.this,
+                                    activities,
+                                    "Activities at " + place,
+                                    JOptionPane.INFORMATION_MESSAGE
+                            );
                         }
                     }
                 }
@@ -632,7 +730,7 @@ public class Activities extends JFrame {
                 oldActivityField.getText().trim();
 
         String newActivity =
-                activityField.getText().trim();
+                newActivityField.getText().trim();
 
         if (oldActivity.isEmpty()
                 || newActivity.isEmpty()) {
@@ -682,7 +780,7 @@ public class Activities extends JFrame {
                 );
 
                 oldActivityField.setText("");
-                activityField.setText("");
+                newActivityField.setText("");
 
                 loadActivities();
 
