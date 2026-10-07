@@ -179,12 +179,7 @@ public class AdminDashboard extends JFrame {
 
 
         activitiesButton.addActionListener(e -> {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Activities section coming soon."
-            );
-
+            new Activities();
         });
 
 
