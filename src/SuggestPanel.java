@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
@@ -51,12 +50,17 @@ public class SuggestPanel extends JPanel {
         add(categoryBox);
 
         try {
+
             for (String name : placeDAO.getCategoryNames()) {
                 categoryBox.addItem(name);
             }
+
         } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this,
-                    "Could not load categories. Is MySQL running?\n" + ex.getMessage());
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Could not load categories. Is MySQL running?\n" + ex.getMessage()
+            );
         }
 
 
@@ -84,7 +88,7 @@ public class SuggestPanel extends JPanel {
         addressField.setBounds(25, 234, 300, 30);
         add(addressField);
 
-        // CHANGED: 7 to 10 digits -> exactly 10 digits
+        // Phone must be exactly 10 digits
         add(makeLabel("Phone (10 digits) *", 355, 212));
 
         phoneField = new JTextField();
@@ -229,7 +233,6 @@ public class SuggestPanel extends JPanel {
 
         // =====================================================
         // PHONE VALIDATION
-        // EXACTLY 10 DIGITS
         // =====================================================
 
         error = Validator.checkPhone(phone);
@@ -300,6 +303,17 @@ public class SuggestPanel extends JPanel {
             }
 
 
+            if (suggestionDAO.phoneExists(phone)) {
+
+                showError(
+                        "This phone number has already been used for a place suggestion.",
+                        phoneField
+                );
+
+                return;
+            }
+
+
             int categoryId = placeDAO.getCategoryId(category);
 
 
@@ -336,11 +350,6 @@ public class SuggestPanel extends JPanel {
         }
     }
 
-
-    // =========================================================
-    // CLEAR FORM
-    // =========================================================
-
     private void clearForm() {
 
         nameField.setText("");
@@ -355,4 +364,3 @@ public class SuggestPanel extends JPanel {
         errorLabel.setText("");
     }
 }
-

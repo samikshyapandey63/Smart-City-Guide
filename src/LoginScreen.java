@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.lang.classfile.Label;
 
 public class LoginScreen extends JFrame {
 

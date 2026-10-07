@@ -13,6 +13,13 @@ public class DashboardFrame extends JFrame {
     private PlaceDAO placeDAO = new PlaceDAO();
     private ReviewDAO reviewDAO = new ReviewDAO();
     private FavoriteDAO favoriteDAO = new FavoriteDAO();
+    private RecommendationDAO recommendationDAO = new RecommendationDAO();
+
+    // the "Recommended for you" row above the table
+    private RecommendationPanel recommendationPanel;
+
+    // remembers the last search that was saved, so the same search is not saved twice in a row
+    private String lastSearchKey = "";
 
     // the other pages: they replace the Places page when a menu button is pressed
     private FavoritesPanel favoritesPanel;
@@ -39,7 +46,7 @@ public class DashboardFrame extends JFrame {
         }
 
         setTitle("Smart City Guide");
-        setSize(1000, 700);
+        setSize(1000, 780);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
@@ -259,6 +266,18 @@ public class DashboardFrame extends JFrame {
         );
 
 
+        // ================= RECOMMENDED FOR YOU =================
+
+        recommendationPanel = new RecommendationPanel(this, user);
+
+        topPanel.add(
+                recommendationPanel,
+                BorderLayout.SOUTH
+        );
+
+        recommendationPanel.reload(startCity);
+
+
         // ================= PLACES TABLE =================
 
         String[] columns = {
@@ -384,9 +403,12 @@ public class DashboardFrame extends JFrame {
 
         // ================= BUTTON ACTIONS =================
 
-        placesButton.addActionListener(
-                e -> showPage(mainPanel)
-        );
+        placesButton.addActionListener(e -> {
+
+            refreshRecommendations();
+
+            showPage(mainPanel);
+        });
 
         favoritesButton.addActionListener(e -> {
 
@@ -432,6 +454,8 @@ public class DashboardFrame extends JFrame {
                     this,
                     shown.get(selectedRow)
             );
+
+            refreshRecommendations();
         });
 
 
@@ -568,7 +592,7 @@ public class DashboardFrame extends JFrame {
     // ================= ADD TO FAVORITES =================
 
     // parent = the window the message should appear over
-    private void addToFavorites(Component parent, Place place) {
+    void addToFavorites(Component parent, Place place) {
 
         try {
 
@@ -839,6 +863,71 @@ public class DashboardFrame extends JFrame {
                     "No places found."
             );
         }
+
+        if (loaded) {
+
+            recordSearch(
+                    searchField.getText().trim(),
+                    (String) categoryBox.getSelectedItem(),
+                    (String) cityBox.getSelectedItem()
+            );
+        }
+
+        refreshRecommendations();
+    }
+
+
+    // ================= SAVE THE SEARCH =================
+
+    // what the user searches for teaches the recommendations what they like
+    private void recordSearch(String text, String category, String city) {
+
+        // just browsing the whole city: nothing to learn
+        if (text.isEmpty() && category.equals("All")) {
+            return;
+        }
+
+        // a chosen category counts as is; for a text search use the category of the results
+        String categoryToSave = null;
+
+        if (!category.equals("All")) {
+            categoryToSave = category;
+        } else if (!shown.isEmpty()) {
+            categoryToSave = RecommendationDAO.mostCommonCategory(shown);
+        }
+
+        String key = city + "|" + text.toLowerCase() + "|" + categoryToSave;
+
+        if (key.equals(lastSearchKey)) {
+            return;
+        }
+
+        lastSearchKey = key;
+
+        try {
+
+            recommendationDAO.logSearch(
+                    user.getId(),
+                    city,
+                    text,
+                    categoryToSave
+            );
+
+        } catch (SQLException ex) {
+
+            // saving history is a bonus: never stop the search because of it
+            System.out.println("Could not save the search: " + ex.getMessage());
+        }
+    }
+
+
+    // ================= REFRESH THE ROW =================
+
+    void refreshRecommendations() {
+
+        recommendationPanel.reload(
+                (String) cityBox.getSelectedItem()
+        );
     }
 
 
@@ -925,6 +1014,19 @@ public class DashboardFrame extends JFrame {
     // ================= PLACE DETAILS =================
 
     void showPlaceDetails(Place place) {
+
+        // opening a place also teaches the recommendations
+        try {
+
+            recommendationDAO.logView(
+                    user.getId(),
+                    place.getId()
+            );
+
+        } catch (SQLException ex) {
+
+            System.out.println("Could not save the view: " + ex.getMessage());
+        }
 
         JDialog dialog =
                 new JDialog(
@@ -1860,6 +1962,9 @@ public class DashboardFrame extends JFrame {
         );
 
         dialog.setVisible(true);
+
+        // the window is closed: a new review or favorite may change the row
+        refreshRecommendations();
     }
 
 

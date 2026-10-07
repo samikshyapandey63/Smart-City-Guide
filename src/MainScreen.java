@@ -9,7 +9,6 @@ import java.sql.SQLException;
 
 public class MainScreen {
     public static void main(String[] args) {
-
         JFrame frame = new JFrame("Smart City Guide");
         frame.setSize(800, 600);
         frame.setLayout(null);
